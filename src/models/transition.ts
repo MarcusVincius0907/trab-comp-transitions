@@ -1,6 +1,6 @@
 export default interface Transition {
-  initialState: string;
-  finalState: string;
+  initialState: number;
+  finalState: number;
   input: string;
   output: string;
 }

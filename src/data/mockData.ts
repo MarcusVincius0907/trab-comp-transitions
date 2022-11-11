@@ -1,42 +1,87 @@
 import Transition from "../models/transition";
 
-const transitions: Transition[] = [
+const simple: Transition[] = [
   {
-    initialState: "0",
-    finalState: "1",
+    initialState: 0,
+    finalState: 1,
     input: "a+",
     output: "x+",
   },
   {
-    initialState: "1",
-    finalState: "2",
+    initialState: 1,
+    finalState: 2,
     input: "b+",
     output: "y+",
   },
   {
-    initialState: "2",
-    finalState: "3",
+    initialState: 2,
+    finalState: 3,
     input: "c+",
     output: "z+",
   },
   {
-    initialState: "3",
-    finalState: "4",
+    initialState: 3,
+    finalState: 4,
     input: "a-",
     output: "x-",
   },
   {
-    initialState: "4",
-    finalState: "5",
+    initialState: 4,
+    finalState: 5,
     input: "b-",
     output: "y-",
   },
   {
-    initialState: "5",
-    finalState: "0",
+    initialState: 5,
+    finalState: 0,
     input: "c-",
     output: "z-",
   },
 ];
 
-export { transitions };
+const decision: Transition[] = [
+  {
+    initialState: 0,
+    finalState: 1,
+    input: "a+",
+    output: "z+",
+  },
+  {
+    initialState: 1,
+    finalState: 2,
+    input: "a-",
+    output: "z-",
+  },
+  {
+    initialState: 1,
+    finalState: 3,
+    input: "b+",
+    output: "z-",
+  },
+  {
+    initialState: 2,
+    finalState: 4,
+    input: "b+",
+    output: "x+",
+  },
+  {
+    initialState: 4,
+    finalState: 0,
+    input: "b-",
+    output: "x-",
+  },
+  {
+    initialState: 3,
+    finalState: 5,
+    input: "a-",
+    output: "x+",
+  },
+  {
+    initialState: 5,
+    finalState: 0,
+    input: "b-",
+    output: "x-",
+  },
+]
+
+export { simple, decision };
