@@ -26,8 +26,6 @@ branches.forEach(transition => {
       flow.push(current);
       current = next;
     }
-   
-    
   }
 })
 
