@@ -3,4 +3,5 @@ export default interface Transition {
   finalState: number;
   input: string;
   output: string;
+  flowPosition?: number;
 }
