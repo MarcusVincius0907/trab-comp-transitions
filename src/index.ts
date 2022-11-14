@@ -8,7 +8,6 @@ async function main(){
   const data = processData(dataFromFile.transitions)
   const outputCode = writeData(dataFromFile.inputs, dataFromFile.outputs, data )
   console.log(outputCode)
-
 }
 
 

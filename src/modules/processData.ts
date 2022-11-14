@@ -2,7 +2,7 @@ import Transition from "../models/transition";
 import FlowType from "../models/flowType";
 
 export default function processData(fileData: Transition[]){
-  
+
   let result: Array<string> = [];
   const transitions: Transition[] = fileData;
   let flowType = FlowType.SIMPLE;
@@ -12,11 +12,17 @@ export default function processData(fileData: Transition[]){
   if (branches.length > 1) {
     flowType = FlowType.DECISION;
   }
-  
+
+  if (isConcurrenceLine(transitions)) {
+    flowType = FlowType.CONCURRENCE
+  }
+
   if (flowType === FlowType.SIMPLE) {
     result = simpleFlow(transitions);
   } else if (flowType === FlowType.DECISION) {
     result = decisionFlow(transitions, branches, index, flow);
+  } else if (flowType === FlowType.CONCURRENCE) {
+    result = concurrenceFlow(transitions)
   }
 
   return result;
@@ -159,33 +165,53 @@ function decisionFlow(transitions: Transition[], branches: Transition[], branchI
   return result;
 }
 
-/* function concurrenceFlow(transitions: Transition[] | null, branches: Transition[], branchIndex: number, flow: Transition[]): Array<string>{
+function concurrenceFlow(transitions: Transition[]): Array<string>{
   const result: Array<string> = [];
-  let transition: Transition  | null
   let partitionNumber = 1
-  let file = syncReadFile("./code.txt").split("\n")
+  let lastPosition = 0
 
-  let processedFile = file.map((line: any) => {
-    if (!isConcurrenceLine(line)) {
-      transition = processTransitionLine(line)
-
-      result.push(`${transition?.initialState} p${partitionNumber}`)
+  transitions?.forEach((transition, index, array) => {
+    if (transition.outputs.length > 1) {
+      result.push(`${transition.inputs[0]} p${partitionNumber}`)
+      result.push(`${transition.inputs[0]} p${partitionNumber + 1}`)
+      result.push(`p${partitionNumber} ${transition.outputs[0]}`)
+      result.push(`p${partitionNumber + 1} ${transition.outputs[1]}`)
+      result.push(`${transition.outputs[0]} p${partitionNumber + 2}`)
+      result.push(`${transition.outputs[1]} p${partitionNumber + 3}`)
+      result.push(`p${partitionNumber + 2} ${array[index+1].inputs[0]}`)
+      partitionNumber += 3
+    } else if (transition.inputs.length > 1){
+      result.push(`p${partitionNumber} ${transition.inputs[0]}`)
+      result.push(`p${partitionNumber + 1} ${transition.inputs[1]}`)
+      result.push(`${transition.inputs[0]} p${partitionNumber  + 2}`)
+      result.push(`${transition.inputs[1]} p${partitionNumber + 3}`)
+      result.push(`p${partitionNumber + 2} ${transition.outputs[0]}`)
+      result.push(`p${partitionNumber + 3} ${transition.outputs[0]}`)
+      result.push(`${transition.outputs[0]} p${partitionNumber + 4}`)
+      lastPosition = partitionNumber + 4
+      partitionNumber += 3
     } else {
-
+      result.push(`p${partitionNumber} ${transition.inputs[0]}`)
+      result.push(`${transition.inputs[0]} p${partitionNumber + 1}`)
+      result.push(`p${partitionNumber + 1} ${transition.outputs[0]}`)
+      result.push(`${transition.outputs[0]} p${partitionNumber + 2}`)
+      result.push(`${transition.outputs[0]} p${partitionNumber + 3}`)
+      partitionNumber += 2
     }
-    //console.log(transition)
   })
 
-  return []
+  result.unshift(`p${lastPosition} ${transitions[0].inputs[0]}`)
+  result.push(`marking{${lastPosition}}`)
+
+  return result
 }
 
-function isConcurrenceLine(line:string) {
-  let partitionNumber = 1
-  let a = line.split(" ")
-
-  if (!a[5]){
-    return false
-  }
-  return true
-} */
-
+function isConcurrenceLine(transitions:Transition[]) {
+  let isConcurrence = false
+  transitions.forEach((transition) => {
+    if (transition.inputs.length > 1 || transition.outputs.length > 1) {
+      isConcurrence = true
+    }
+  })
+  return isConcurrence
+}
