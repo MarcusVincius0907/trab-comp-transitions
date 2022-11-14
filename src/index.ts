@@ -1,6 +1,8 @@
-import Transition from "./models/transition";
+import { Transition } from "./models/transition";
 import FlowType from "./models/flowType";
-import { decision as mock } from "./data/mockData";
+// import { decision as mock } from "./data/mockData";
+import { syncReadFile } from "./modules/read_file";
+import { processTransitionLine } from "./modules/process_transition_line";
 
 function main(){
 
@@ -9,11 +11,11 @@ function main(){
   let flowType = FlowType.SIMPLE;
   const { branches, index } = searchForBranches(transitions);
   const flow: Transition[] = transitions.slice(0, index);
-  
+
   if (branches.length > 1) {
     flowType = FlowType.DECISION;
   }
-  
+  concurrenceFlow(transitions, branches, index, flow)
   if (flowType === FlowType.SIMPLE) {
     result = simpleFlow(transitions);
   } else if (flowType === FlowType.DECISION) {
@@ -21,17 +23,17 @@ function main(){
   }
 
   console.log(result)
-  
+
 }
 
 
 /**
  * It will look for branches in order to check if it is decision type
- * 
+ *
  * @param transitions - transitions from file
- * 
+ *
  * @returns an array of string for output
- * 
+ *
 **/
 function searchForBranches(transitions: Transition[]) {
   const branches: Transition[] = [];
@@ -50,11 +52,11 @@ function searchForBranches(transitions: Transition[]) {
 }
 /**
  * This is for the simple example
- * 
+ *
  * @param transitions - transitions from file
- * 
+ *
  * @returns an array of string for output
- * 
+ *
 **/
 function simpleFlow(transitions: Transition[]): Array<string>{
 
@@ -81,14 +83,14 @@ function simpleFlow(transitions: Transition[]): Array<string>{
 
 /**
  * This is for the decision example
- * 
+ *
  * @param transitions - transitions from file
  * @param branches - from searchForBranches
  * @param branchIndex - from searchForBranches
  * @param flow - used to create a logic flow from transitions
- * 
+ *
  * @returns an array of string for output
- * 
+ *
 **/
 function decisionFlow(transitions: Transition[], branches: Transition[], branchIndex: number , flow: Transition[]): Array<string>{
   const result: Array<string> = [];
@@ -112,7 +114,7 @@ function decisionFlow(transitions: Transition[], branches: Transition[], branchI
       }
     }
   });
-  
+
   flow.map((transition, index) => (transition.flowPosition = index + 1));
 
   let positionOfDecision = branchIndex + 1;
@@ -146,7 +148,7 @@ function decisionFlow(transitions: Transition[], branches: Transition[], branchI
         ) {
           let firstInput = transitions[0].input;
           result.push(`p${partitionNumber + 2} ${firstInput}`);
-          
+
           lastPartitionNumber = partitionNumber + 2;
           secondDecision = true;
           partitionNumber = positionOfDecision;
@@ -158,6 +160,36 @@ function decisionFlow(transitions: Transition[], branches: Transition[], branchI
   result.push(`marking{p${endingPosition + 1}}`);
 
   return result;
+}
+
+function concurrenceFlow(transitions: Transition[] | null, branches: Transition[], branchIndex: number, flow: Transition[]): Array<string>{
+  const result: Array<string> = [];
+  let transition: Transition  | null
+  let partitionNumber = 1
+  let file = syncReadFile("./code.txt").split("\n")
+
+  let processedFile = file.map((line) => {
+    if (!isConcurrenceLine(line)) {
+      transition = processTransitionLine(line)
+
+      result.push(`${transition?.initialState} p${partitionNumber}`)
+    } else {
+
+    }
+    //console.log(transition)
+  })
+
+  return []
+}
+
+function isConcurrenceLine(line:string) {
+  let partitionNumber = 1
+  let a = line.split(" ")
+
+  if (!a[5]){
+    return false
+  }
+  return true
 }
 
 main()
