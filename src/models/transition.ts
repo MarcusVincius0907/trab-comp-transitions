@@ -1,7 +1,9 @@
 export default interface Transition {
   initialState: number;
   finalState: number;
-  input: string;
-  output: string;
+  inputs: Array<string>;
+  outputs: Array<string>;
   flowPosition?: number;
 }
+
+
